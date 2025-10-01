@@ -20,11 +20,6 @@ def load_model():
 
 @app.route("/train", methods=["POST"])
 def train():
-    """
-    Train regression model to predict BTC closing price.
-    Features: Open, High, Low, Volume
-    Target: Close
-    """
     file = request.files.get("file")
     if not file:
         return jsonify({"error": "No file uploaded"}), 400
@@ -47,9 +42,6 @@ def train():
 
 @app.route("/test", methods=["POST"])
 def test():
-    """
-    Test the trained model on BTC test dataset.
-    """
     try:
         model = load_model()
     except:
@@ -67,20 +59,9 @@ def test():
     mse = mean_squared_error(y, y_pred)
     r2 = r2_score(y, y_pred)
 
-    return jsonify({
-        "test_mse": mse,
-        "test_r2": r2
-    })
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    """
-    Predict BTC closing price from JSON input.
-    Example:
-    {
-        "OHLV": [45000, 46000, 44000, 35000000000]
-    }
-    """
     try:
         model = load_model()
     except:
@@ -90,10 +71,11 @@ def predict():
     if not data or "OHLV" not in data:
         return jsonify({"error": "No OHLV provided"}), 400
 
-    OHLV = np.array([data["OHLV"]])  # must be 2D
+    OHLV = np.array([data["OHLV"]]) 
     prediction = model.predict(OHLV)[0]
 
     return jsonify({"predicted_close_price": float(prediction)})
 
 if __name__ == "__main__":
+
     app.run(debug=True)
